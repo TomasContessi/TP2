@@ -19,18 +19,19 @@ typedef enum
 	Prefix_TECX_VALIDATION,
 	Prefix_TECX_OPRIMIDO,
 	Prefix_IDLE_ESPERA,
-	Prefix_PORTON_CERRADO,
-	Prefix_PORTON_CERRANDO,
-	Prefix_PORTON_ABRIENDO,
-	Prefix_PORTON_ABIERTO,
-	Prefix_MOTOR_MOTOR_REPOSO,
-	Prefix_MOTOR_MOTOR_TITILAR,
-	Prefix_MOTOR_MOTOR_TITILAR_r1_MOTOR_APAGADO,
-	Prefix_MOTOR_MOTOR_TITILAR_r1_MOTOR_ENCENDIDO,
-	Prefix_LUZ_LUZ_REPOSO,
-	Prefix_LUZ_LUZ_TITILAR,
-	Prefix_LUZ_LUZ_TITILAR_r1_LUZ_APAGADO,
-	Prefix_LUZ_LUZ_TITILAR_r1_LUZ_ENCENDIDO,
+	Prefix_MODO_NORMAL,
+	Prefix_MODO_GRILL,
+	Prefix_MODO_DESCONGELAR,
+	Prefix_MICROONDAS_APAGADO,
+	Prefix_MICROONDAS_ENCENDIDO,
+	Prefix_LED2_Reposo,
+	Prefix_LED2_Titala_UP,
+	Prefix_LED2_Titala_UP_r1_Apagado,
+	Prefix_LED2_Titala_UP_r1_Encendido,
+	Prefix_LED3_Reposo,
+	Prefix_LED3_Titila_Tension,
+	Prefix_LED3_Titila_Tension_r1_Apagado,
+	Prefix_LED3_Titila_Tension_r1_Encendido,
 	Prefix_last_state
 } PrefixStates;
 
@@ -60,12 +61,12 @@ extern const sc_integer PREFIX_PREFIXIFACE_TEC4;
 typedef struct
 {
 	sc_boolean siTECXOK_raised;
-	sc_boolean siRemoto_raised;
-	sc_boolean siAbrio_raised;
-	sc_boolean siCerro_raised;
-	sc_boolean siAutomovil_raised;
-	sc_boolean siMotor_raised;
-	sc_boolean siNoMotor_raised;
+	sc_boolean siPuertaAbierta_raised;
+	sc_boolean siCambioModo_raised;
+	sc_boolean siOnOff_raised;
+	sc_boolean siTitilaL2UP_raised;
+	sc_boolean siTitilaEncendido_raised;
+	sc_boolean siTitilaApagado_raised;
 	sc_integer viTecla;
 } PrefixInternal;
 
@@ -73,15 +74,17 @@ typedef struct
 typedef struct
 {
 	sc_boolean prefix_TECX_DEBOUNCE_tev0_raised;
-	sc_boolean prefix_MOTOR_MOTOR_TITILAR_r1_MOTOR_APAGADO_tev0_raised;
-	sc_boolean prefix_MOTOR_MOTOR_TITILAR_r1_MOTOR_ENCENDIDO_tev0_raised;
-	sc_boolean prefix_LUZ_LUZ_TITILAR_r1_LUZ_APAGADO_tev0_raised;
-	sc_boolean prefix_LUZ_LUZ_TITILAR_r1_LUZ_ENCENDIDO_tev0_raised;
+	sc_boolean prefix_MICROONDAS_ENCENDIDO_tev0_raised;
+	sc_boolean prefix_LED2_Titala_UP_tev0_raised;
+	sc_boolean prefix_LED2_Titala_UP_r1_Apagado_tev0_raised;
+	sc_boolean prefix_LED2_Titala_UP_r1_Encendido_tev0_raised;
+	sc_boolean prefix_LED3_Titila_Tension_r1_Apagado_tev0_raised;
+	sc_boolean prefix_LED3_Titila_Tension_r1_Encendido_tev0_raised;
 } PrefixTimeEvents;
 
 
 /*! Define dimension of the state configuration vector for orthogonal states. */
-#define PREFIX_MAX_ORTHOGONAL_STATES 5
+#define PREFIX_MAX_ORTHOGONAL_STATES 6
 
 /*! 
  * Type definition of the data structure for the Prefix state machine.

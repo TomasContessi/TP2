@@ -77,16 +77,19 @@
  	 	 	 	 	 	rm prefix.sct
  	 	 	 	 	 	cp Porton.-sct prefix.sct 							 		*/
 
-#define EJERCICIO_1 (6)   /* Generador */
+#define EJERCICIO_1 (4)   /* Generador */
 
-#define EJERCICIO_4 (4)   /* Puerta corrediza */
+#define EJERCICIO_2 (4)   /* Puerta corrediza */
 
-#define EJERCICIO_5 (5)   /* Portón de Cochera */
+#define EJERCICIO_5 (4)   /* Portón de Cochera */
 
-#define EJERCICIO_6 (6)   /* Escalera mecánica */
+#define EJERCICIO_6 (4)   /* Escalera mecánica */
+
+#define EJERCICIO_7 (4)   /* Microondas */
+
 
 /* Select a compilation choise	*/
-#define TEST (EJERCICIO_5)
+#define TEST (EJERCICIO_7)
 
 
 #define TICKRATE_1MS	(1)				/* 1000 ticks per second */
@@ -481,236 +484,6 @@ int main(void)
 
 #if (TEST == EJERCICIO_1)	/* Generador */
 
-uint32_t Buttons_GetStatus_(void) {
-	uint8_t ret = false;
-	uint32_t idx;
-
-	for (idx = 0; idx < 4; ++idx) {
-		if (gpioRead( TEC1 + idx ) == 0)
-			ret |= 1 << idx;
-	}
-	return ret;
-}
-
-/**
- * @brief	main routine for statechart example
- * @return	Function should not exit.
- */
-int main(void)
-{
-	#if (__USE_TIME_EVENTS == true)
-	uint32_t i;
-	#endif
-	DEBUG_PRINT_ENABLE;
-   	/* UART for debug messages. */
-   	debugPrintConfigUart( UART_USB, 115200 );
-   	debugPrintString( "DEBUG c/sAPI\r\n" );
-	uint32_t BUTTON_Status;
-
-	/* Generic Initialization */
-	boardConfig();
-	/*Configuración para mensaje de debugging*/
-
-/* Init Ticks counter => TICKRATE_MS */
-	tickConfig( TICKRATE_MS );
-
-	/* Add Tick Hook */
-	tickCallbackSet( myTickHook, (void*)NULL );
-
-	/* Statechart Initialization */
-	#if (__USE_TIME_EVENTS == true)
-	InitTimerTicks(ticks, NOF_TIMERS);
-	#endif
-
-	prefix_init(&statechart);
-	prefix_enter(&statechart);
-
-	while (1) {
-		__WFI();
-
-		if (SysTick_Time_Flag == true) {
-			SysTick_Time_Flag = false;
-
-			#if (__USE_TIME_EVENTS == true)
-			UpdateTimers(ticks, NOF_TIMERS);
-			for (i = 0; i < NOF_TIMERS; i++) {
-				if (IsPendEvent(ticks, NOF_TIMERS, ticks[i].evid) == true) {
-
-					prefix_raiseTimeEvent(&statechart, ticks[i].evid);	// Event -> Ticks.evid => OK
-					MarkAsAttEvent(ticks, NOF_TIMERS, ticks[i].evid);
-				}
-			}
-			#else
-			prefixIface_raise_evTick(&statechart);					// Event -> evTick => OK
-			#endif
-
-			BUTTON_Status = Buttons_GetStatus_();
-			if (BUTTON_Status != 0)									// Event -> evTECXOprimodo => OK
-				prefixIface_raise_evTECXOprimido(&statechart, BUTTON_Status);	// Value -> Tecla
-			else													// Event -> evTECXNoOprimido => OK
-				prefixIface_raise_evTECXNoOprimido(&statechart);
-
-			prefix_runCycle(&statechart);							// Run Cycle of Statechart
-		}
-	}
-}
-
-#endif
-
-
-
-#if (TEST == EJERCICIO_4)	/* Escalera mecánica */
-
-uint32_t Buttons_GetStatus_(void) {
-	uint8_t ret = false;
-	uint32_t idx;
-
-	for (idx = 0; idx < 4; ++idx) {
-		if (gpioRead( TEC1 + idx ) == 0)
-			ret |= 1 << idx;
-	}
-	return ret;
-}
-
-/**
- * @brief	main routine for statechart example
- * @return	Function should not exit.
- */
-int main(void)
-{
-	#if (__USE_TIME_EVENTS == true)
-	uint32_t i;
-	#endif
-
-	uint32_t BUTTON_Status;
-
-	/* Generic Initialization */
-	boardConfig();
-
-	/* Init Ticks counter => TICKRATE_MS */
-	tickConfig( TICKRATE_MS );
-
-	/* Add Tick Hook */
-	tickCallbackSet( myTickHook, (void*)NULL );
-
-	/* Statechart Initialization */
-	#if (__USE_TIME_EVENTS == true)
-	InitTimerTicks(ticks, NOF_TIMERS);
-	#endif
-
-	prefix_init(&statechart);
-	prefix_enter(&statechart);
-
-	while (1) {
-		__WFI();
-
-		if (SysTick_Time_Flag == true) {
-			SysTick_Time_Flag = false;
-
-			#if (__USE_TIME_EVENTS == true)
-			UpdateTimers(ticks, NOF_TIMERS);
-			for (i = 0; i < NOF_TIMERS; i++) {
-				if (IsPendEvent(ticks, NOF_TIMERS, ticks[i].evid) == true) {
-
-					prefix_raiseTimeEvent(&statechart, ticks[i].evid);	// Event -> Ticks.evid => OK
-					MarkAsAttEvent(ticks, NOF_TIMERS, ticks[i].evid);
-				}
-			}
-			#else
-			prefixIface_raise_evTick(&statechart);					// Event -> evTick => OK
-			#endif
-
-			BUTTON_Status = Buttons_GetStatus_();
-			if (BUTTON_Status != 0)									// Event -> evTECXOprimodo => OK
-				prefixIface_raise_evTECXOprimido(&statechart, BUTTON_Status);	// Value -> Tecla
-			else													// Event -> evTECXNoOprimido => OK
-				prefixIface_raise_evTECXNoOprimido(&statechart);
-
-			prefix_runCycle(&statechart);							// Run Cycle of Statechart
-		}
-	}
-}
-
-#endif
-
-
-#if (TEST == EJERCICIO_5)	/* Portón de Cochera */
-
-
-uint32_t Buttons_GetStatus_(void) {
-	uint8_t ret = false;
-	uint32_t idx;
-
-	for (idx = 0; idx < 4; ++idx) {
-		if (gpioRead( TEC1 + idx ) == 0)
-			ret |= 1 << idx;
-	}
-	return ret;
-}
-
-/**
- * @brief	main routine for statechart example
- * @return	Function should not exit.
- */
-int main(void)
-{
-	#if (__USE_TIME_EVENTS == true)
-	uint32_t i;
-	#endif
-
-	uint32_t BUTTON_Status;
-
-	/* Generic Initialization */
-	boardConfig();
-
-	/* Init Ticks counter => TICKRATE_MS */
-	tickConfig( TICKRATE_MS );
-
-	/* Add Tick Hook */
-	tickCallbackSet( myTickHook, (void*)NULL );
-
-	/* Statechart Initialization */
-	#if (__USE_TIME_EVENTS == true)
-	InitTimerTicks(ticks, NOF_TIMERS);
-	#endif
-
-	prefix_init(&statechart);
-	prefix_enter(&statechart);
-
-	/* LEDs toggle in main */
-	while (1) {
-		__WFI();
-
-		if (SysTick_Time_Flag == true) {
-			SysTick_Time_Flag = false;
-
-			#if (__USE_TIME_EVENTS == true)
-			UpdateTimers(ticks, NOF_TIMERS);
-			for (i = 0; i < NOF_TIMERS; i++) {
-				if (IsPendEvent(ticks, NOF_TIMERS, ticks[i].evid) == true) {
-
-					prefix_raiseTimeEvent(&statechart, ticks[i].evid);	// Event -> Ticks.evid => OK
-					MarkAsAttEvent(ticks, NOF_TIMERS, ticks[i].evid);
-				}
-			}
-			#else
-			prefixIface_raise_evTick(&statechart);					// Event -> evTick => OK
-			#endif
-
-			BUTTON_Status = Buttons_GetStatus_();
-			if (BUTTON_Status != 0)									// Event -> evTECXOprimodo => OK
-				prefixIface_raise_evTECXOprimido(&statechart, BUTTON_Status);	// Value -> Tecla
-			else													// Event -> evTECXNoOprimido => OK
-				prefixIface_raise_evTECXNoOprimido(&statechart);
-
-			prefix_runCycle(&statechart);							// Run Cycle of Statechart
-		}
-	}
-}
-#endif
-
-
-#if (TEST == EJERCICIO_6)	/* Escalera mecánica */
 
 uint32_t Buttons_GetStatus_(void) {
 	uint8_t ret = false;
@@ -784,3 +557,5 @@ int main(void)
 }
 
 #endif
+
+
