@@ -77,10 +77,16 @@
  	 	 	 	 	 	rm prefix.sct
  	 	 	 	 	 	cp Porton.-sct prefix.sct 							 		*/
 
-#define SCT_4 (4) /* Generador de senales */
-#define SCT_5 (5) /*Puerta corrediza y  cochera*/
+#define EJERCICIO_1 (6)   /* Generador */
+
+#define EJERCICIO_4 (4)   /* Puerta corrediza */
+
+#define EJERCICIO_5 (5)   /* Portón de Cochera */
+
+#define EJERCICIO_6 (6)   /* Escalera mecánica */
+
 /* Select a compilation choise	*/
-#define TEST (SCT_5)
+#define TEST (EJERCICIO_5)
 
 
 #define TICKRATE_1MS	(1)				/* 1000 ticks per second */
@@ -106,7 +112,6 @@ static Prefix statechart;
 #endif
 
 TimerTicks ticks[NOF_TIMERS];
-
 
 /*==================[internal functions declaration]=========================*/
 
@@ -141,10 +146,74 @@ There are some constraints that have to be considered for the implementation of 
  * @param LEDNumber number of LED
  * @param onoff state machine operation parameter
  */
+
+
 void prefixIface_opLED(Prefix* handle, sc_integer LEDNumber, sc_boolean State)
 {
 	gpioWrite( (LEDR + LEDNumber), State);
 }
+
+void prefixIface_selecForma(Prefix* handle, sc_integer forma, sc_boolean State)
+{
+
+	switch (forma){
+		case 0:
+			gpioWrite(LEDB, false);
+			gpioWrite(LEDR, State);
+			break;
+		case 1:
+			gpioWrite(LEDR, false);
+			gpioWrite(LEDG, State);
+			break;
+		case 2:
+			gpioWrite(LEDG, false);
+			gpioWrite(LEDB, State);
+			break;
+		case 3:
+			gpioWrite(LEDR, false);
+			gpioWrite(LEDG, false);
+			gpioWrite(LEDB, false);
+
+	}
+}
+
+void prefixIface_selecParam(Prefix* handle, sc_integer param)
+{
+	switch (param){
+		case 0:
+			gpioWrite(LED1, true);
+			break;
+		case 1:
+			gpioWrite(LED1, false);
+			break;
+	}
+}
+
+void prefixIface_subir(Prefix* handle, sc_integer param)
+{
+	switch (param){
+		case 0:
+			gpioWrite(LED1, true);
+			break;
+		case 1:
+			gpioWrite(LED1, false);
+			break;
+	}
+}
+
+void prefixIface_bajar(Prefix* handle, sc_integer param)
+{
+	switch (param){
+		case 0:
+			gpioWrite(LED1, true);
+			break;
+		case 1:
+			gpioWrite(LED1, false);
+			break;
+	}
+}
+
+
 
 
 /*!
@@ -410,9 +479,7 @@ int main(void)
 }
 #endif
 
-#if (TEST == SCT_4)
-
-
+#if (TEST == EJERCICIO_1)	/* Generador */
 
 uint32_t Buttons_GetStatus_(void) {
 	uint8_t ret = false;
@@ -425,19 +492,26 @@ uint32_t Buttons_GetStatus_(void) {
 	return ret;
 }
 
-
+/**
+ * @brief	main routine for statechart example
+ * @return	Function should not exit.
+ */
 int main(void)
 {
 	#if (__USE_TIME_EVENTS == true)
 	uint32_t i;
 	#endif
-
+	DEBUG_PRINT_ENABLE;
+   	/* UART for debug messages. */
+   	debugPrintConfigUart( UART_USB, 115200 );
+   	debugPrintString( "DEBUG c/sAPI\r\n" );
 	uint32_t BUTTON_Status;
 
 	/* Generic Initialization */
 	boardConfig();
+	/*Configuración para mensaje de debugging*/
 
-	/* Init Ticks counter => TICKRATE_MS */
+/* Init Ticks counter => TICKRATE_MS */
 	tickConfig( TICKRATE_MS );
 
 	/* Add Tick Hook */
@@ -450,8 +524,6 @@ int main(void)
 
 	prefix_init(&statechart);
 	prefix_enter(&statechart);
-
-	/* LEDs toggle in main */
 
 	while (1) {
 		__WFI();
@@ -483,17 +555,86 @@ int main(void)
 	}
 }
 
+#endif
+
+
+
+#if (TEST == EJERCICIO_4)	/* Escalera mecánica */
+
+uint32_t Buttons_GetStatus_(void) {
+	uint8_t ret = false;
+	uint32_t idx;
+
+	for (idx = 0; idx < 4; ++idx) {
+		if (gpioRead( TEC1 + idx ) == 0)
+			ret |= 1 << idx;
+	}
+	return ret;
+}
+
+/**
+ * @brief	main routine for statechart example
+ * @return	Function should not exit.
+ */
+int main(void)
+{
+	#if (__USE_TIME_EVENTS == true)
+	uint32_t i;
+	#endif
+
+	uint32_t BUTTON_Status;
+
+	/* Generic Initialization */
+	boardConfig();
+
+	/* Init Ticks counter => TICKRATE_MS */
+	tickConfig( TICKRATE_MS );
+
+	/* Add Tick Hook */
+	tickCallbackSet( myTickHook, (void*)NULL );
+
+	/* Statechart Initialization */
+	#if (__USE_TIME_EVENTS == true)
+	InitTimerTicks(ticks, NOF_TIMERS);
+	#endif
+
+	prefix_init(&statechart);
+	prefix_enter(&statechart);
+
+	while (1) {
+		__WFI();
+
+		if (SysTick_Time_Flag == true) {
+			SysTick_Time_Flag = false;
+
+			#if (__USE_TIME_EVENTS == true)
+			UpdateTimers(ticks, NOF_TIMERS);
+			for (i = 0; i < NOF_TIMERS; i++) {
+				if (IsPendEvent(ticks, NOF_TIMERS, ticks[i].evid) == true) {
+
+					prefix_raiseTimeEvent(&statechart, ticks[i].evid);	// Event -> Ticks.evid => OK
+					MarkAsAttEvent(ticks, NOF_TIMERS, ticks[i].evid);
+				}
+			}
+			#else
+			prefixIface_raise_evTick(&statechart);					// Event -> evTick => OK
+			#endif
+
+			BUTTON_Status = Buttons_GetStatus_();
+			if (BUTTON_Status != 0)									// Event -> evTECXOprimodo => OK
+				prefixIface_raise_evTECXOprimido(&statechart, BUTTON_Status);	// Value -> Tecla
+			else													// Event -> evTECXNoOprimido => OK
+				prefixIface_raise_evTECXNoOprimido(&statechart);
+
+			prefix_runCycle(&statechart);							// Run Cycle of Statechart
+		}
+	}
+}
 
 #endif
 
-#if (TEST == SCT_5)	/* Test Statechart EDU-CIAA-NXP - IDE LPCXpresso - Application
-						#define __USE_TIME_EVENTS (true)
- 	 	 	 	 	 	rm prefix.sct
- 	 	 	 	 	 	cp Application.-sct prefix.sct 								*/
-					/* Test Statechart EDU-CIAA-NXP - IDE LPCXpresso - Portón
-						#define __USE_TIME_EVENTS (true)
- 	 	 	 	 	 	rm prefix.sct
- 	 	 	 	 	 	cp Porton.-sct prefix.sct 							 		*/
+
+#if (TEST == EJERCICIO_5)	/* Portón de Cochera */
 
 
 uint32_t Buttons_GetStatus_(void) {
@@ -569,7 +710,77 @@ int main(void)
 #endif
 
 
+#if (TEST == EJERCICIO_6)	/* Escalera mecánica */
 
-/** @} doxygen end group definition */
+uint32_t Buttons_GetStatus_(void) {
+	uint8_t ret = false;
+	uint32_t idx;
 
-/*==================[end of file]============================================*/
+	for (idx = 0; idx < 4; ++idx) {
+		if (gpioRead( TEC1 + idx ) == 0)
+			ret |= 1 << idx;
+	}
+	return ret;
+}
+
+/**
+ * @brief	main routine for statechart example
+ * @return	Function should not exit.
+ */
+int main(void)
+{
+	#if (__USE_TIME_EVENTS == true)
+	uint32_t i;
+	#endif
+
+	uint32_t BUTTON_Status;
+
+	/* Generic Initialization */
+	boardConfig();
+
+	/* Init Ticks counter => TICKRATE_MS */
+	tickConfig( TICKRATE_MS );
+
+	/* Add Tick Hook */
+	tickCallbackSet( myTickHook, (void*)NULL );
+
+	/* Statechart Initialization */
+	#if (__USE_TIME_EVENTS == true)
+	InitTimerTicks(ticks, NOF_TIMERS);
+	#endif
+
+	prefix_init(&statechart);
+	prefix_enter(&statechart);
+
+	/* LEDs toggle in main */
+	while (1) {
+		__WFI();
+
+		if (SysTick_Time_Flag == true) {
+			SysTick_Time_Flag = false;
+
+			#if (__USE_TIME_EVENTS == true)
+			UpdateTimers(ticks, NOF_TIMERS);
+			for (i = 0; i < NOF_TIMERS; i++) {
+				if (IsPendEvent(ticks, NOF_TIMERS, ticks[i].evid) == true) {
+
+					prefix_raiseTimeEvent(&statechart, ticks[i].evid);	// Event -> Ticks.evid => OK
+					MarkAsAttEvent(ticks, NOF_TIMERS, ticks[i].evid);
+				}
+			}
+			#else
+			prefixIface_raise_evTick(&statechart);					// Event -> evTick => OK
+			#endif
+
+			BUTTON_Status = Buttons_GetStatus_();
+			if (BUTTON_Status != 0)									// Event -> evTECXOprimodo => OK
+				prefixIface_raise_evTECXOprimido(&statechart, BUTTON_Status);	// Value -> Tecla
+			else													// Event -> evTECXNoOprimido => OK
+				prefixIface_raise_evTECXNoOprimido(&statechart);
+
+			prefix_runCycle(&statechart);							// Run Cycle of Statechart
+		}
+	}
+}
+
+#endif

@@ -14,15 +14,23 @@ extern "C" {
 /*! Enumeration of all states */ 
 typedef enum
 {
-	Prefix_main_region_CERRADO,
-	Prefix_main_region_ABIERTO,
-	Prefix_main_region_CERRANDO,
-	Prefix_main_region_ABRIENDO,
-	Prefix_IDLE_ESPERA,
 	Prefix_TECX_NO_OPRIMIDO,
 	Prefix_TECX_DEBOUNCE,
 	Prefix_TECX_VALIDATION,
 	Prefix_TECX_OPRIMIDO,
+	Prefix_IDLE_ESPERA,
+	Prefix_PORTON_CERRADO,
+	Prefix_PORTON_CERRANDO,
+	Prefix_PORTON_ABRIENDO,
+	Prefix_PORTON_ABIERTO,
+	Prefix_MOTOR_MOTOR_REPOSO,
+	Prefix_MOTOR_MOTOR_TITILAR,
+	Prefix_MOTOR_MOTOR_TITILAR_r1_MOTOR_APAGADO,
+	Prefix_MOTOR_MOTOR_TITILAR_r1_MOTOR_ENCENDIDO,
+	Prefix_LUZ_LUZ_REPOSO,
+	Prefix_LUZ_LUZ_TITILAR,
+	Prefix_LUZ_LUZ_TITILAR_r1_LUZ_APAGADO,
+	Prefix_LUZ_LUZ_TITILAR_r1_LUZ_ENCENDIDO,
 	Prefix_last_state
 } PrefixStates;
 
@@ -32,14 +40,14 @@ typedef struct
 	sc_boolean evTECXOprimido_raised;
 	sc_integer evTECXOprimido_value;
 	sc_boolean evTECXNoOprimido_raised;
-	sc_boolean evTurnOn_raised;
-	sc_boolean evTurnOff_raised;
-	sc_boolean evForma_raised;
-	sc_boolean evMagn_raised;
-	sc_boolean A_raised;
 } PrefixIface;
 
 /* Declaration of constants for scope PrefixIface. */
+extern const sc_integer PREFIX_PREFIXIFACE_LEDR;
+extern const sc_integer PREFIX_PREFIXIFACE_LEDG;
+extern const sc_integer PREFIX_PREFIXIFACE_LEDB;
+extern const sc_integer PREFIX_PREFIXIFACE_LED1;
+extern const sc_integer PREFIX_PREFIXIFACE_LED2;
 extern const sc_integer PREFIX_PREFIXIFACE_LED3;
 extern const sc_boolean PREFIX_PREFIXIFACE_LED_ON;
 extern const sc_boolean PREFIX_PREFIXIFACE_LED_OFF;
@@ -52,28 +60,28 @@ extern const sc_integer PREFIX_PREFIXIFACE_TEC4;
 typedef struct
 {
 	sc_boolean siTECXOK_raised;
-	sc_boolean siTitilarLED_raised;
-	sc_boolean siNoTitilarLED_raised;
-	sc_boolean siAbrir_raised;
-	sc_boolean siCerrar_raised;
-	sc_boolean siUp_raised;
-	sc_boolean siDown_raised;
+	sc_boolean siRemoto_raised;
+	sc_boolean siAbrio_raised;
+	sc_boolean siCerro_raised;
+	sc_boolean siAutomovil_raised;
+	sc_boolean siMotor_raised;
+	sc_boolean siNoMotor_raised;
 	sc_integer viTecla;
-	sc_integer viFrec;
-	sc_integer viTension;
 } PrefixInternal;
 
 /*! Type definition of the data structure for the PrefixTimeEvents interface scope. */
 typedef struct
 {
-	sc_boolean prefix_main_region_CERRANDO_tev0_raised;
-	sc_boolean prefix_main_region_ABRIENDO_tev0_raised;
 	sc_boolean prefix_TECX_DEBOUNCE_tev0_raised;
+	sc_boolean prefix_MOTOR_MOTOR_TITILAR_r1_MOTOR_APAGADO_tev0_raised;
+	sc_boolean prefix_MOTOR_MOTOR_TITILAR_r1_MOTOR_ENCENDIDO_tev0_raised;
+	sc_boolean prefix_LUZ_LUZ_TITILAR_r1_LUZ_APAGADO_tev0_raised;
+	sc_boolean prefix_LUZ_LUZ_TITILAR_r1_LUZ_ENCENDIDO_tev0_raised;
 } PrefixTimeEvents;
 
 
 /*! Define dimension of the state configuration vector for orthogonal states. */
-#define PREFIX_MAX_ORTHOGONAL_STATES 3
+#define PREFIX_MAX_ORTHOGONAL_STATES 5
 
 /*! 
  * Type definition of the data structure for the Prefix state machine.
@@ -110,21 +118,16 @@ extern void prefixIface_raise_evTECXOprimido(Prefix* handle, sc_integer value);
 /*! Raises the in event 'evTECXNoOprimido' that is defined in the default interface scope. */ 
 extern void prefixIface_raise_evTECXNoOprimido(Prefix* handle);
 
-/*! Raises the in event 'evTurnOn' that is defined in the default interface scope. */ 
-extern void prefixIface_raise_evTurnOn(Prefix* handle);
-
-/*! Raises the in event 'evTurnOff' that is defined in the default interface scope. */ 
-extern void prefixIface_raise_evTurnOff(Prefix* handle);
-
-/*! Raises the in event 'evForma' that is defined in the default interface scope. */ 
-extern void prefixIface_raise_evForma(Prefix* handle);
-
-/*! Raises the in event 'evMagn' that is defined in the default interface scope. */ 
-extern void prefixIface_raise_evMagn(Prefix* handle);
-
-/*! Raises the in event 'A' that is defined in the default interface scope. */ 
-extern void prefixIface_raise_a(Prefix* handle);
-
+/*! Gets the value of the variable 'LEDR' that is defined in the default interface scope. */ 
+extern const sc_integer prefixIface_get_lEDR(const Prefix* handle);
+/*! Gets the value of the variable 'LEDG' that is defined in the default interface scope. */ 
+extern const sc_integer prefixIface_get_lEDG(const Prefix* handle);
+/*! Gets the value of the variable 'LEDB' that is defined in the default interface scope. */ 
+extern const sc_integer prefixIface_get_lEDB(const Prefix* handle);
+/*! Gets the value of the variable 'LED1' that is defined in the default interface scope. */ 
+extern const sc_integer prefixIface_get_lED1(const Prefix* handle);
+/*! Gets the value of the variable 'LED2' that is defined in the default interface scope. */ 
+extern const sc_integer prefixIface_get_lED2(const Prefix* handle);
 /*! Gets the value of the variable 'LED3' that is defined in the default interface scope. */ 
 extern const sc_integer prefixIface_get_lED3(const Prefix* handle);
 /*! Gets the value of the variable 'LED_ON' that is defined in the default interface scope. */ 

@@ -12,7 +12,7 @@
         <outgoingTransitions xmi:id="_o5-w4LaaEeef4KXvt0hZZQ" specification="evTECXOprimido" target="_gq52oLaaEeef4KXvt0hZZQ"/>
         <outgoingTransitions xmi:id="_4ICPcLaaEeef4KXvt0hZZQ" specification="evTECXNoOprimido" target="_SVa0RLaZEeef4KXvt0hZZQ"/>
       </vertices>
-      <vertices xsi:type="sgraph:State" xmi:id="_gq52oLaaEeef4KXvt0hZZQ" specification="entry / raise siTECXOK&#xA;" name="OPRIMIDO" incomingTransitions="_o5-w4LaaEeef4KXvt0hZZQ">
+      <vertices xsi:type="sgraph:State" xmi:id="_gq52oLaaEeef4KXvt0hZZQ" specification="entry / raise siTECXOK;&#xA;viTecla = valueof(evTECXOprimido)" name="OPRIMIDO" incomingTransitions="_o5-w4LaaEeef4KXvt0hZZQ">
         <outgoingTransitions xmi:id="_-mBmkLaaEeef4KXvt0hZZQ" specification="evTECXNoOprimido" target="_SVa0RLaZEeef4KXvt0hZZQ"/>
       </vertices>
       <vertices xsi:type="sgraph:Entry" xmi:id="_NP3A8LafEeef4KXvt0hZZQ">
@@ -390,7 +390,7 @@
           <styles xsi:type="notation:ShapeStyle" xmi:id="_4vbUsLacEeef4KXvt0hZZQ" fontName="Verdana" fillColor="15981773" lineColor="12632256"/>
           <styles xsi:type="notation:FontStyle" xmi:id="_4vbUsbacEeef4KXvt0hZZQ"/>
           <styles xsi:type="notation:BooleanValueStyle" xmi:id="_4vb7wbacEeef4KXvt0hZZQ" name="isHorizontal" booleanValue="true"/>
-          <layoutConstraint xsi:type="notation:Bounds" xmi:id="_4vbUsracEeef4KXvt0hZZQ" x="144" y="179" width="185" height="56"/>
+          <layoutConstraint xsi:type="notation:Bounds" xmi:id="_4vbUsracEeef4KXvt0hZZQ" x="139" y="191" width="185" height="56"/>
         </children>
         <children xmi:id="_rvv8wLadEeef4KXvt0hZZQ" type="Entry" element="_rvooALadEeef4KXvt0hZZQ">
           <children xmi:id="_rvxK4LadEeef4KXvt0hZZQ" type="BorderItemLabelContainer">

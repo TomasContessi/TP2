@@ -1,4 +1,3 @@
-/Prefix.c
-/Prefix.h
-/PrefixRequired.h
-/sc_types.h
+*
+!.gitignore
+!README
